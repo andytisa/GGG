@@ -16,6 +16,11 @@ buf = 1024
 bot_id_request = {'get_team_id_for': team_name}
 client_socket = None
 
+ourMap = [['X ' for i in range(100)] for j in range(100)]
+midMap = 50
+ourX = 50
+ourY = 50
+
 
 ########################################################################################################################
 #                                                   Procedures                                                         #
@@ -48,9 +53,49 @@ def get_bot_id():
         response = response[3:-1]
         response = json.loads(response)
         return response['bot_id']
-    except ex:
-        print ex
+    except:
+        print 'Exception in get bot id'
 
+
+def updateMap(map, movement):
+    global ourX
+    global ourY
+    if (movement == -1):
+        for i in range(5):
+            for j in range(5):
+                ourMap[midMap - 2 + j][midMap + 2 - i] = map[i][j]
+
+    if (movement == 0):
+        ourY = ourY + 1
+        tempX = ourX - 2
+        for i in range(5):
+            ourMap[tempX + i][ourY+2] = map[0][i]
+
+    if (movement == 1):
+        ourY = ourY - 1
+        tempX = ourX -2
+        for i in range(5):
+            ourMap[tempX+i][ourY-2] = map[4][i]
+
+    if (movement == 3):
+        ourX = ourX - 1
+        tempY = ourY + 2
+        for i in range(5):
+            ourMap[ourX - 2][tempY - i] = map[i][0]
+
+    if (movement == 4):
+        ourX = ourX + 1
+        tempY = ourY + 2
+        for i in range(5):
+            ourMap[ourX + 2][tempY - i] = map[i][4]
+
+    currentMap = ""
+    for i in range(20):
+        for j in range(20):
+            currentMap+= str(ourMap[40+j][60-i])
+            currentMap += " "
+        currentMap += '\n'
+    return currentMap
 
 class Node():
     """A node class for A* Pathfinding"""
@@ -179,6 +224,24 @@ def main():
         response = client_socket.recv(buf)
         response = response[3:-1]
         response = json.loads(response)
+
+        # Example first map and movement
+    # firstMap = [
+    #                 [10, 20, 30, 40, 50],
+    #                 [11, 12, 13, 14, 15],
+    #                 [21, 22, 23, 24, 25],
+    #                 [31, 32, 33, 34, 35],
+    #                 [41, 42, 43, 44, 45]
+    #                 ]
+    # secondMap = [
+    #                 [11, 12, 13, 14, 15],
+    #                 [21, 22, 23, 24, 25],
+    #                 [31, 32, 33, 34, 35],
+    #                 [41, 42, 43, 44, 45],
+    #                 [51, 52, 53, 54, 55]
+    #                 ]
+    # print updateMap(firstMap, -1)
+    # print updateMap(secondMap, 1)
 
 
 if __name__ == '__main__':
