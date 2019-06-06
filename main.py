@@ -102,12 +102,11 @@ def get_data():
 def send_data(move=None, speed=None, act=None):
     if move is not None:
         data = json.dumps({'move': move, 'speed': speed, 'bot_id': bot_id})
-        data = '{:03x}'.format(len(data)) + data + '\0'
-        client_socket.send(data)
     else:
         data = json.dumps({'act': act, 'bot_id': bot_id})
-        data = '{:03x}'.format(len(data)) + data + '\0'
-        client_socket.send(data)
+        
+    data = '{:03x}'.format(len(data)) + data + '\0'
+    client_socket.send(data)
 
 
 def getIndexInPriorityList(element):
