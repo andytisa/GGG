@@ -52,7 +52,14 @@ Priority = {
      'Status': '',
      'Position': (0, 0)
 }
-Priority_List = []
+Priority_List = [{'Name': 'Battery', 'Priority': 0, 'Status': 'Unknown', 'Position': (-1, -1)},
+                 {'Name': 'Switch1', 'Priority': 1, 'Status': 'Unknown', 'Position': (-1, -1)},
+                 {'Name': 'Switch2', 'Priority': 2, 'Status': 'Unknown', 'Position': (-1, -1)},
+                 {'Name': 'Switch3', 'Priority': 3, 'Status': 'Unknown', 'Position': (-1, -1)},
+                 {'Name': 'Olympus', 'Priority': 4, 'Status': 'Unknown', 'Position': (-1, -1)},
+                 {'Name': 'Shield', 'Priority': 5, 'Status': 'Unknown', 'Position': (-1, -1)},
+                 {'Name': 'Laser', 'Priority': 6, 'Status': 'Unknown', 'Position': (-1, -1)},
+                 {'Name': 'Life', 'Priority': 7, 'Status': 'Unknown', 'Position': (-1, -1)}]
 
 
 ########################################################################################################################
@@ -103,29 +110,73 @@ def send_data(move=None, speed=None, act=None):
         client_socket.send(data)
 
 
+def getIndexInPriorityList(element):
+    if element == 'B':
+        index = 0
+    elif element == '1':
+        index = 1
+    elif element == '2':
+        index = 2
+    elif element == '3':
+        index = 3
+    elif element == 'Z':
+        index = 4
+    elif element == 'S':
+        index = 5
+    elif element == 'L':
+        index = 6
+    elif element == '+':
+        index = 7
+    else:
+        index = -1
+    return index
+
 def updateMap(map, movement):
     global ourX
     global ourY
+    global Priority_List
     if (movement == -1):
         for i in range(5):
             for j in range(5):
                 ourMap[midMap - 2 + i][midMap - 2 + j] = map[i][j]
+                index = getIndexInPriorityList(map[i][j])
+                if index != -1:
+                    Priority_List[index]['Status'] = 'Known'
+                    Priority_List[index]['Position'] = (midMap - 2 + i, midMap - 2 + j)
+
+
 
     if (movement == Moves.up):
         for j in range(5):
             ourMap[ourX - 3][ourY - 2 + j] = map[0][j]
+            index = getIndexInPriorityList(map[0][j])
+            if index != -1:
+                Priority_List[index]['Status'] = 'Known'
+                Priority_List[index]['Position'] = (ourX - 3, ourY - 2 + j)
 
     if (movement == Moves.down):
         for j in range(5):
             ourMap[ourX + 3][ourY - 2 + j] = map[4][j]
+            index = getIndexInPriorityList(map[4][j])
+            if index != -1:
+                Priority_List[index]['Status'] = 'Known'
+                Priority_List[index]['Position'] = (ourX + 3, ourY - 2 + j)
 
     if (movement == Moves.left):
         for i in range(5):
             ourMap[ourX + 2 + i][ourY - 3] = map[i][0]
+            index = getIndexInPriorityList(map[i][0])
+            if index != -1:
+                Priority_List[index]['Status'] = 'Known'
+                Priority_List[index]['Position'] = (ourX + 2 + i, ourY - 3)
 
     if (movement == Moves.right):
         for i in range(5):
             ourMap[ourX - 2 + i][ourY + 3] = map[i][4]
+            index = getIndexInPriorityList(map[i][4])
+            if index != -1:
+                Priority_List[index]['Status'] = 'Known'
+                Priority_List[index]['Position'] = (ourX - 2 + i, ourY + 3)
 
     currentMap = ""
     for i in range(20):
@@ -316,15 +367,6 @@ def main():
     create_connection()
     bot_id = get_bot_id()
 
-    Priority_List = [{'Name': 'Battery', 'Priority': 0, 'Status': 'Unknown', 'Position': (-1, -1)},
-                     {'Name': 'Switch1', 'Priority': 1, 'Status': 'Unknown', 'Position': (-1, -1)},
-                     {'Name': 'Switch2', 'Priority': 2, 'Status': 'Unknown', 'Position': (-1, -1)},
-                     {'Name': 'Switch3', 'Priority': 3, 'Status': 'Unknown', 'Position': (-1, -1)},
-                     {'Name': 'Olympus', 'Priority': 4, 'Status': 'Unknown', 'Position': (-1, -1)},
-                     {'Name': 'Shield',  'Priority': 5, 'Status': 'Unknown', 'Position': (-1, -1)},
-                     {'Name': 'Laser',   'Priority': 6, 'Status': 'Unknown', 'Position': (-1, -1)},
-                     {'Name': 'Life',    'Priority': 7, 'Status': 'Unknown', 'Position': (-1, -1)}]
-
     # maze = [[0, 0, 0, 0, 'p', 0, 0, 0, 0, 0],
     #         ['Z', '1', 0, 0, 'b', 0, 0, 0, 0, 0],
     #         [0, '2', '3', 0, 'b', 0, 0, 0, 0, 0],
@@ -348,6 +390,7 @@ def main():
         send_data(move, speed)
 
         print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in ourMap]))
+        print Priority_List
 
 
 
