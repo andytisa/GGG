@@ -15,7 +15,7 @@ buf = 1024
 client_socket = None
 bot_id = None
 
-ourMap = [['X ' for i in range(100)] for j in range(100)]
+ourMap = [['X' for i in range(100)] for j in range(100)]
 midMap = 50
 ourX = 50
 ourY = 50
@@ -27,8 +27,8 @@ YPositionOnWorldMap = 0
 class Moves:
     up = 0
     down = 1
-    left = 3
-    right = 4
+    left = 2
+    right = 3
 
 
 class Speed:
@@ -102,28 +102,20 @@ def updateMap(map, movement):
                 ourMap[midMap - 2 + i][midMap - 2 + j] = map[i][j]
 
     if (movement == Moves.up):
-        ourX = ourX - 1
-        tempY = ourY - 2
         for j in range(5):
-            ourMap[ourX - 2][tempY + j] = map[0][j]
+            ourMap[ourX - 3][ourY - 2 + j] = map[0][j]
 
     if (movement == Moves.down):
-        ourX = ourX + 1
-        tempY = ourY - 2
         for j in range(5):
-            ourMap[ourX + 2][tempY + j] = map[4][j]
+            ourMap[ourX + 3][ourY - 2 + j] = map[4][j]
 
     if (movement == Moves.left):
-        ourY = ourY - 1
-        tempX = ourX - 2
         for i in range(5):
-            ourMap[tempX + i][ourY - 2] = map[i][0]
+            ourMap[ourX + 2 + i][ourY - 3] = map[i][0]
 
     if (movement == Moves.right):
-        ourY = ourY + 1
-        tempX = ourX - 2
         for i in range(5):
-            ourMap[tempX + i][ourY + 2] = map[i][4]
+            ourMap[ourX - 2 + i][ourY + 3] = map[i][4]
 
     currentMap = ""
     for i in range(20):
@@ -235,48 +227,58 @@ def find_path(maze, start, end):
             # Add the child to the open list
             open_list.append(child)
 
+
+def choose_direction(x, y):
+    if goingTop is True:
+        if ourMap[x - 1][y] == ' ':
+            return Moves.up
+        if ourMap[x - 1][y] == 'b' or ourMap[x - 1][y] == 'p' or ourMap[x - 1][y] == 'R':
+            if ourMap[x][y + 1] == ' ':
+                return Moves.right
+            elif ourMap[x][y - 1] == ' ':
+                return Moves.left
+            elif ourMap[x + 1][y] == ' ':
+                return Moves.down
+    else:
+        return Moves.down
+
+
 def analyzeData(response):
     global initialMapPassed
     global goingTop
     global XPositionOnWorldMap
     global YPositionOnWorldMap
-    if (initialMapPassed == False):
-        print updateMap(response['gameBoard'], -1)
+    global ourX
+    global ourY
+    if initialMapPassed is False:
+        updateMap(response['gameBoard'], -1)
         initialMapPassed = True
         XPositionOnWorldMap = response['x']
         YPositionOnWorldMap = response['y']
-        return Moves.up
+        return choose_direction(ourX, ourY)
+    else:
+        if response['x'] > XPositionOnWorldMap:
+            print 'down'
+            updateMap(response['gameBoard'], Moves.down)
+            XPositionOnWorldMap = response['x']
+            ourX = ourX + 1
+        if response['x'] < XPositionOnWorldMap:
+            print 'up'
+            updateMap(response['gameBoard'], Moves.up)
+            XPositionOnWorldMap = response['x']
+            ourX = ourX - 1
+        if response['y'] > YPositionOnWorldMap:
+            print 'right'
+            updateMap(response['gameBoard'], Moves.right)
+            YPositionOnWorldMap = response['y']
+            ourY = ourY + 1
+        if response['y'] < YPositionOnWorldMap:
+            print 'left'
+            updateMap(response['gameBoard'], Moves.left)
+            YPositionOnWorldMap = response['y']
+            ourY = ourY - 1
 
-    if response['x'] > XPositionOnWorldMap:
-        updateMap(response['gameBoard'], Moves.right)
-        XPositionOnWorldMap = response['x']
-    if response['x'] < XPositionOnWorldMap:
-        updateMap(response['gameBoard'], Moves.left)
-        XPositionOnWorldMap = response['x']
-    if response['y'] > XPositionOnWorldMap:
-        updateMap(response['gameBoard'], Moves.up)
-        YPositionOnWorldMap = response['y']
-    if response['y'] < XPositionOnWorldMap:
-        updateMap(response['gameBoard'], Moves.down)
-        YPositionOnWorldMap = response['y']
-
-    if goingTop == True:
-        if ourMap[ourX][ourY-1] == ' ':
-            return Moves.up
-        if (ourMap[ourX][ourY-1] == 'b' or ourMap[ourX][ourY-1] == 'p' or ourMap[ourX][ourY+1] == 'X') and ourMap[ourX+1][ourY-1] == ' ':
-            return Moves.right
-        if (ourMap[ourX][ourY-1] == 'b' or ourMap[ourX][ourY-1] == 'p' or ourMap[ourX][ourY-1] == 'X') and ourMap[ourX-1][ourY-1] == ' ':
-            return Moves.left
-        if (ourMap[ourX+1][ourY-1] == 'b' or ourMap[ourX+1][ourY-1] == 'p' or ourMap[ourX+1][ourY-1] == 'X') and ourMap[ourX+2][ourY-1] == ' ':
-            return Moves.right
-        if (ourMap[ourX-1][ourY-1] == 'b' or ourMap[ourX-1][ourY-1] == 'p' or ourMap[ourX-1][ourY-1] == 'X') and ourMap[ourX-2][ourY-1] == ' ':
-            return Moves.left
-        for i in range(1,3):
-            for j in range(5):
-                if ourMap[ourX+j][ourY+i] == 'M':
-                    goingTop = False
-    if goingTop == False:
-        return Moves.down
+        return choose_direction(ourX, ourY)
 
 def main():
     global bot_id
@@ -284,27 +286,28 @@ def main():
     create_connection()
     bot_id = get_bot_id()
 
-    maze = [[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 1, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
-
-    start = (0, 0)
-    end = (7, 6)
-
-    path = find_path(maze, start, end)
-    print(path)
+    # maze = [[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 1, 0, 1, 0, 0, 0],
+    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+    #
+    # start = (0, 0)
+    # end = (7, 6)
+    #
+    # path = find_path(maze, start, end)
+    # print(path)
 
     while True:
         response = get_data()
         move = analyzeData(response)
         send_data(move, Speed.normal)
+        print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in ourMap]))
 
         # Example first map and movement
     # firstMap = [
