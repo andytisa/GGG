@@ -327,8 +327,6 @@ def analyzeData(response):
     global ourX
     global ourY
 
-    XPositionOnWorldMap = response['x']
-    YPositionOnWorldMap = response['y']
     worldMap = response['gameBoard']
     element = worldMap[2][2]
 
@@ -374,6 +372,10 @@ def analyzeData(response):
             direction = choose_direction(ourX, ourY)
             speed = choose_speed(ourX, ourY)
             return (direction, speed, None)
+            
+    XPositionOnWorldMap = response['x']
+    YPositionOnWorldMap = response['y']
+
 
 def main():
     global bot_id
