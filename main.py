@@ -207,9 +207,9 @@ def find_path(maze, start, end):
 
             # Make sure walkable terrain
             if maze[node_position[0]][node_position[1]] != ' ' and \
-                maze[node_position[0]][node_position[1]] != 1 and \
-                maze[node_position[0]][node_position[1]] != 2 and \
-                maze[node_position[0]][node_position[1]] != 3 and \
+                maze[node_position[0]][node_position[1]] != '1' and \
+                maze[node_position[0]][node_position[1]] != '2' and \
+                maze[node_position[0]][node_position[1]] != '3' and \
                 maze[node_position[0]][node_position[1]] != 'Z' and \
                 maze[node_position[0]][node_position[1]] != 'L' and \
                 maze[node_position[0]][node_position[1]] != 'B' and \
@@ -316,18 +316,18 @@ def main():
     create_connection()
     bot_id = get_bot_id()
 
-    Priority_List = [{'Name': 'Battery', 'Priority': 0, 'Location': 'Unknown', 'Position': (-1, -1)},
-                     {'Name': 'Switch1', 'Priority': 1, 'Location': 'Unknown', 'Position': (-1, -1)},
-                     {'Name': 'Switch2', 'Priority': 2, 'Location': 'Unknown', 'Position': (-1, -1)},
-                     {'Name': 'Switch3', 'Priority': 3, 'Location': 'Unknown', 'Position': (-1, -1)},
-                     {'Name': 'Olympus', 'Priority': 4, 'Location': 'Unknown', 'Position': (-1, -1)},
-                     {'Name': 'Shield',  'Priority': 5, 'Location': 'Unknown', 'Position': (-1, -1)},
-                     {'Name': 'Laser',   'Priority': 6, 'Location': 'Unknown', 'Position': (-1, -1)},
-                     {'Name': 'Life',    'Priority': 7, 'Location': 'Unknown', 'Position': (-1, -1)}]
+    Priority_List = [{'Name': 'Battery', 'Priority': 0, 'Status': 'Unknown', 'Position': (-1, -1)},
+                     {'Name': 'Switch1', 'Priority': 1, 'Status': 'Unknown', 'Position': (-1, -1)},
+                     {'Name': 'Switch2', 'Priority': 2, 'Status': 'Unknown', 'Position': (-1, -1)},
+                     {'Name': 'Switch3', 'Priority': 3, 'Status': 'Unknown', 'Position': (-1, -1)},
+                     {'Name': 'Olympus', 'Priority': 4, 'Status': 'Unknown', 'Position': (-1, -1)},
+                     {'Name': 'Shield',  'Priority': 5, 'Status': 'Unknown', 'Position': (-1, -1)},
+                     {'Name': 'Laser',   'Priority': 6, 'Status': 'Unknown', 'Position': (-1, -1)},
+                     {'Name': 'Life',    'Priority': 7, 'Status': 'Unknown', 'Position': (-1, -1)}]
 
     # maze = [[0, 0, 0, 0, 'p', 0, 0, 0, 0, 0],
-    #         ['Z', 1, 0, 0, 'b', 0, 0, 0, 0, 0],
-    #         [0, 2, 3, 0, 'b', 0, 0, 0, 0, 0],
+    #         ['Z', '1', 0, 0, 'b', 0, 0, 0, 0, 0],
+    #         [0, '2', '3', 0, 'b', 0, 0, 0, 0, 0],
     #         [0, 0, 0, 0, 'b', 0, 0, 0, 0, 0],
     #         [0, 0, 0, 'L', 'b', 0, 0, 0, 0, 0],
     #         [0, 0, 0, 0, 'b', 0, 0, 0, 0, 0],
