@@ -19,7 +19,7 @@ ourMap = [['X ' for i in range(100)] for j in range(100)]
 midMap = 50
 ourX = 50
 ourY = 50
-
+initialMapPassed = False
 
 class Moves:
     up = 0
@@ -232,6 +232,13 @@ def find_path(maze, start, end):
             # Add the child to the open list
             open_list.append(child)
 
+def analyzeData(response):
+    global initialMapPassed
+    if (initialMapPassed == False):
+        print updateMap(response['gameBoard'], -1)
+        initialMapPassed = True
+        return
+
 
 def main():
     global bot_id
@@ -258,6 +265,7 @@ def main():
 
     while True:
         response = get_data()
+        analyzeData(response)
         send_data(Moves.up)
         response = get_data()
         send_data(Moves.down)
