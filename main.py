@@ -266,9 +266,9 @@ def main():
     while True:
         response = get_data()
         analyzeData(response)
-        send_data(Moves.up)
+        send_data(Moves.up, Speed.normal)
         response = get_data()
-        send_data(Moves.down)
+        send_data(Moves.down, Speed.normal)
 
         # Example first map and movement
     # firstMap = [
