@@ -353,28 +353,25 @@ def analyzeData(response):
             return (direction, speed, None)
         else:
             if response['x'] > XPositionOnWorldMap:
-                print 'down'
+                # print 'down'
                 updateMap(worldMap, Moves.down)
                 ourX = ourX + 1
             if response['x'] < XPositionOnWorldMap:
-                print 'up'
+                # print 'up'
                 updateMap(worldMap, Moves.up)
                 ourX = ourX - 1
             if response['y'] > YPositionOnWorldMap:
-                print 'right'
+                # print 'right'
                 updateMap(worldMap, Moves.right)
                 ourY = ourY + 1
             if response['y'] < YPositionOnWorldMap:
-                print 'left'
+                # print 'left'
                 updateMap(worldMap, Moves.left)
                 ourY = ourY - 1
 
             direction = choose_direction(ourX, ourY)
             speed = choose_speed(ourX, ourY)
             return (direction, speed, None)
-            
-    XPositionOnWorldMap = response['x']
-    YPositionOnWorldMap = response['y']
 
 
 def main():
@@ -401,13 +398,21 @@ def main():
     # print(path)
 
     while True:
+        global XPositionOnWorldMap
+        global YPositionOnWorldMap
+        
         response = get_data()
         move, speed, action = analyzeData(response)
+        
+        XPositionOnWorldMap = response['x']
+        YPositionOnWorldMap = response['y']
+        
         send_data(move, speed, action)
-        #print move, speed, action
-        print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in ourMap]))
-        #print Priority_List
 
+        print '------------------------------'
+        # print move, speed, action
+        # print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in ourMap]))
+        # print Priority_List
 
 
 if __name__ == '__main__':
