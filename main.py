@@ -23,6 +23,7 @@ initialMapPassed = False
 goingTop = True
 XPositionOnWorldMap = 0
 YPositionOnWorldMap = 0
+DoubleSpeed = False
 
 class Moves:
     up = 0
@@ -43,6 +44,15 @@ class Actions:
     fire_right = 'Fire right'
     pick = 'Pick'
     turn_switch = 'Turn switch'
+
+
+Priority = {
+     'Name': '',
+     'Priority': 1,
+     'Status': '',
+     'Position': (0, 0)
+}
+Priority_List = []
 
 
 ########################################################################################################################
@@ -252,6 +262,13 @@ def choose_direction(x, y):
         return Moves.down
 
 
+def choose_speed(x, y):
+    if DoubleSpeed is True:
+        return Speed.boosted
+    else:
+        return Speed.normal
+
+
 def analyzeData(response):
     global initialMapPassed
     global goingTop
@@ -264,7 +281,9 @@ def analyzeData(response):
         initialMapPassed = True
         XPositionOnWorldMap = response['x']
         YPositionOnWorldMap = response['y']
-        return choose_direction(ourX, ourY)
+        direction = choose_direction(ourX, ourY)
+        speed = choose_speed(ourX, ourY)
+        return direction, speed
     else:
         if response['x'] > XPositionOnWorldMap:
             print 'down'
@@ -287,13 +306,24 @@ def analyzeData(response):
             YPositionOnWorldMap = response['y']
             ourY = ourY - 1
 
-        return choose_direction(ourX, ourY)
+        direction = choose_direction(ourX, ourY)
+        speed = choose_speed(ourX, ourY)
+        return direction, speed
 
 def main():
     global bot_id
 
     create_connection()
     bot_id = get_bot_id()
+
+    Priority_List = [{'Name': 'Battery', 'Priority': 0, 'Location': 'Unknown', 'Position': (-1, -1)},
+                     {'Name': 'Switch1', 'Priority': 1, 'Location': 'Unknown', 'Position': (-1, -1)},
+                     {'Name': 'Switch2', 'Priority': 2, 'Location': 'Unknown', 'Position': (-1, -1)},
+                     {'Name': 'Switch3', 'Priority': 3, 'Location': 'Unknown', 'Position': (-1, -1)},
+                     {'Name': 'Olympus', 'Priority': 4, 'Location': 'Unknown', 'Position': (-1, -1)},
+                     {'Name': 'Shield',  'Priority': 5, 'Location': 'Unknown', 'Position': (-1, -1)},
+                     {'Name': 'Laser',   'Priority': 6, 'Location': 'Unknown', 'Position': (-1, -1)},
+                     {'Name': 'Life',    'Priority': 7, 'Location': 'Unknown', 'Position': (-1, -1)}]
 
     maze = [[0, 0, 0, 0, 'p', 0, 0, 0, 0, 0],
             ['Z', 1, 0, 0, 'b', 0, 0, 0, 0, 0],
@@ -312,29 +342,13 @@ def main():
     path = find_path(maze, start, end)
     print(path)
 
-    # while True:
-    #     response = get_data()
-    #     move = analyzeData(response)
-    #     send_data(move, Speed.normal)
-    #     print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in ourMap]))
+    while True:
+        response = get_data()
+        move, speed = analyzeData(response)
+        send_data(move, speed)
 
-        # Example first map and movement
-    # firstMap = [
-    #                 [10, 20, 30, 40, 50],
-    #                 [11, 12, 13, 14, 15],
-    #                 [21, 22, 23, 24, 25],
-    #                 [31, 32, 33, 34, 35],
-    #                 [41, 42, 43, 44, 45]
-    #                 ]
-    # secondMap = [
-    #                 [11, 12, 13, 14, 15],
-    #                 [21, 22, 23, 24, 25],
-    #                 [31, 32, 33, 34, 35],
-    #                 [41, 42, 43, 44, 45],
-    #                 [51, 52, 53, 54, 55]
-    #                 ]
-    # print updateMap(firstMap, -1)
-    # print updateMap(secondMap, 1)
+        print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in ourMap]))
+
 
 
 if __name__ == '__main__':
