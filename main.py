@@ -8,18 +8,38 @@ import socket
 #                                                   Variables                                                          #
 ########################################################################################################################
 team_name = 'Navodari'
-
 host = 'localhost'
 port = 31415
 buf = 1024
 
-bot_id_request = {'get_team_id_for': team_name}
 client_socket = None
+bot_id = None
 
 ourMap = [['X ' for i in range(100)] for j in range(100)]
 midMap = 50
 ourX = 50
 ourY = 50
+
+
+class Moves:
+    up = 0
+    down = 1
+    left = 3
+    right = 4
+
+
+class Speed:
+    normal = 1
+    boosted = 2
+
+
+class Actions:
+    fire_up = 'Fire up'
+    fire_down = 'Fire down'
+    fire_left = 'Fire left'
+    fire_right = 'Fire right'
+    pick = 'Pick'
+    turn_switch = 'Turn switch'
 
 
 ########################################################################################################################
@@ -46,15 +66,28 @@ def get_bot_id():
     Register bot with a bot id
     """
     try:
-        data = '{:03x}'.format(len(json.dumps(bot_id_request))) + json.dumps(bot_id_request) + '\0'
-        print data
+        data = json.dumps({'get_team_id_for': team_name})
+        data = '{:03x}'.format(len(data)) + data + '\0'
         client_socket.send(data)
-        response = client_socket.recv(buf)
-        response = response[3:-1]
-        response = json.loads(response)
-        return response['bot_id']
+
+        return get_data()['bot_id']
     except:
-        print 'Exception in get bot id'
+        pass
+
+
+def get_data():
+    return json.loads(client_socket.recv(buf)[3:-1])
+
+
+def send_data(move=None, speed=None, act=None):
+    if move is not None:
+        data = json.dumps({'move': move, 'speed': speed, 'bot_id': bot_id})
+        data = '{:03x}'.format(len(data)) + data + '\0'
+        client_socket.send(data)
+    else:
+        data = json.dumps({'act': act, 'bot_id': bot_id})
+        data = '{:03x}'.format(len(data)) + data + '\0'
+        client_socket.send(data)
 
 
 def updateMap(map, movement):
@@ -69,13 +102,13 @@ def updateMap(map, movement):
         ourY = ourY + 1
         tempX = ourX - 2
         for i in range(5):
-            ourMap[tempX + i][ourY+2] = map[0][i]
+            ourMap[tempX + i][ourY + 2] = map[0][i]
 
     if (movement == 1):
         ourY = ourY - 1
-        tempX = ourX -2
+        tempX = ourX - 2
         for i in range(5):
-            ourMap[tempX+i][ourY-2] = map[4][i]
+            ourMap[tempX + i][ourY - 2] = map[4][i]
 
     if (movement == 3):
         ourX = ourX - 1
@@ -92,10 +125,11 @@ def updateMap(map, movement):
     currentMap = ""
     for i in range(20):
         for j in range(20):
-            currentMap+= str(ourMap[40+j][60-i])
+            currentMap += str(ourMap[40 + j][60 - i])
             currentMap += " "
         currentMap += '\n'
     return currentMap
+
 
 class Node():
     """A node class for A* Pathfinding"""
@@ -200,6 +234,8 @@ def find_path(maze, start, end):
 
 
 def main():
+    global bot_id
+
     create_connection()
     bot_id = get_bot_id()
 
@@ -221,9 +257,10 @@ def main():
     print(path)
 
     while True:
-        response = client_socket.recv(buf)
-        response = response[3:-1]
-        response = json.loads(response)
+        response = get_data()
+        send_data(Moves.up)
+        response = get_data()
+        send_data(Moves.down)
 
         # Example first map and movement
     # firstMap = [
