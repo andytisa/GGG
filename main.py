@@ -20,6 +20,9 @@ midMap = 50
 ourX = 50
 ourY = 50
 initialMapPassed = False
+goingTop = True
+XPositionOnWorldMap = 0
+YPositionOnWorldMap = 0
 
 class Moves:
     up = 0
@@ -96,19 +99,19 @@ def updateMap(map, movement):
     if (movement == -1):
         for i in range(5):
             for j in range(5):
-                ourMap[midMap - 2 + j][midMap + 2 - i] = map[i][j]
+                ourMap[midMap - 2 + j][midMap - 2 - i] = map[i][j]
 
     if (movement == 0):
-        ourY = ourY + 1
-        tempX = ourX - 2
-        for i in range(5):
-            ourMap[tempX + i][ourY + 2] = map[0][i]
-
-    if (movement == 1):
         ourY = ourY - 1
         tempX = ourX - 2
         for i in range(5):
-            ourMap[tempX + i][ourY - 2] = map[4][i]
+            ourMap[tempX + i][ourY - 2] = map[0][i]
+
+    if (movement == 1):
+        ourY = ourY + 1
+        tempX = ourX - 2
+        for i in range(5):
+            ourMap[tempX + i][ourY + 2] = map[4][i]
 
     if (movement == 3):
         ourX = ourX - 1
@@ -234,11 +237,46 @@ def find_path(maze, start, end):
 
 def analyzeData(response):
     global initialMapPassed
+    global goingTop
+    global XPositionOnWorldMap
+    global YPositionOnWorldMap
     if (initialMapPassed == False):
         print updateMap(response['gameBoard'], -1)
         initialMapPassed = True
-        return
+        XPositionOnWorldMap = response['x']
+        YPositionOnWorldMap = response['y']
+        return Moves.up
 
+    if response['x'] > XPositionOnWorldMap:
+        updateMap(response['gameBoard'], Moves.right)
+        XPositionOnWorldMap = response['x']
+    if response['x'] < XPositionOnWorldMap:
+        updateMap(response['gameBoard'], Moves.left)
+        XPositionOnWorldMap = response['x']
+    if response['y'] > XPositionOnWorldMap:
+        updateMap(response['gameBoard'], Moves.up)
+        YPositionOnWorldMap = response['y']
+    if response['y'] < XPositionOnWorldMap:
+        updateMap(response['gameBoard'], Moves.down)
+        YPositionOnWorldMap = response['y']
+
+    if goingTop == True:
+        if ourMap[ourX][ourY-1] == ' ':
+            return Moves.up
+        if (ourMap[ourX][ourY-1] == 'b' or ourMap[ourX][ourY-1] == 'p' or ourMap[ourX][ourY+1] == 'X') and ourMap[ourX+1][ourY-1] == ' ':
+            return Moves.right
+        if (ourMap[ourX][ourY-1] == 'b' or ourMap[ourX][ourY-1] == 'p' or ourMap[ourX][ourY-1] == 'X') and ourMap[ourX-1][ourY-1] == ' ':
+            return Moves.left
+        if (ourMap[ourX+1][ourY-1] == 'b' or ourMap[ourX+1][ourY-1] == 'p' or ourMap[ourX+1][ourY-1] == 'X') and ourMap[ourX+2][ourY-1] == ' ':
+            return Moves.right
+        if (ourMap[ourX-1][ourY-1] == 'b' or ourMap[ourX-1][ourY-1] == 'p' or ourMap[ourX-1][ourY-1] == 'X') and ourMap[ourX-2][ourY-1] == ' ':
+            return Moves.left
+        for i in range(1,3):
+            for j in range(5):
+                if ourMap[ourX+j][ourY+i] == 'M':
+                    goingTop = False
+    if goingTop == False:
+        return Moves.down
 
 def main():
     global bot_id
@@ -265,10 +303,8 @@ def main():
 
     while True:
         response = get_data()
-        analyzeData(response)
-        send_data(Moves.up, Speed.normal)
-        response = get_data()
-        send_data(Moves.down, Speed.normal)
+        move = analyzeData(response)
+        send_data(move, Speed.normal)
 
         # Example first map and movement
     # firstMap = [
