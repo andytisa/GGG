@@ -196,7 +196,16 @@ def find_path(maze, start, end):
                 continue
 
             # Make sure walkable terrain
-            if maze[node_position[0]][node_position[1]] != 0:
+            if maze[node_position[0]][node_position[1]] != ' ' and \
+                maze[node_position[0]][node_position[1]] != 1 and \
+                maze[node_position[0]][node_position[1]] != 2 and \
+                maze[node_position[0]][node_position[1]] != 3 and \
+                maze[node_position[0]][node_position[1]] != 'Z' and \
+                maze[node_position[0]][node_position[1]] != 'L' and \
+                maze[node_position[0]][node_position[1]] != 'B' and \
+                maze[node_position[0]][node_position[1]] != 'S' and \
+                maze[node_position[0]][node_position[1]] != '+' and \
+                maze[node_position[0]][node_position[1]] != 0:
                 continue
 
             # Create new node
@@ -286,28 +295,28 @@ def main():
     create_connection()
     bot_id = get_bot_id()
 
-    # maze = [[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 1, 0, 1, 0, 0, 0],
-    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
-    #
-    # start = (0, 0)
-    # end = (7, 6)
-    #
-    # path = find_path(maze, start, end)
-    # print(path)
+    maze = [[0, 0, 0, 0, 'p', 0, 0, 0, 0, 0],
+            ['Z', 1, 0, 0, 'b', 0, 0, 0, 0, 0],
+            [0, 2, 3, 0, 'b', 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 'b', 0, 0, 0, 0, 0],
+            [0, 0, 0, 'L', 'b', 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 'b', 0, 0, 0, 0, 0],
+            [0, 0, 0, 'b', 'b', 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 'b', 'S', 0, 0, 0, 0],
+            [0, 0, 0, '+', 'b', 0, 'b', 0, 0, 0],
+            [0, 0, 0, 0, 'B', 0, 0, 0, 0, 0]]
 
-    while True:
-        response = get_data()
-        move = analyzeData(response)
-        send_data(move, Speed.normal)
-        print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in ourMap]))
+    start = (0, 0)
+    end = (7, 6)
+
+    path = find_path(maze, start, end)
+    print(path)
+
+    # while True:
+    #     response = get_data()
+    #     move = analyzeData(response)
+    #     send_data(move, Speed.normal)
+    #     print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in ourMap]))
 
         # Example first map and movement
     # firstMap = [
