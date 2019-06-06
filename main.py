@@ -326,39 +326,54 @@ def analyzeData(response):
     global YPositionOnWorldMap
     global ourX
     global ourY
-    if initialMapPassed is False:
-        updateMap(response['gameBoard'], -1)
-        initialMapPassed = True
-        XPositionOnWorldMap = response['x']
-        YPositionOnWorldMap = response['y']
-        direction = choose_direction(ourX, ourY)
-        speed = choose_speed(ourX, ourY)
-        return direction, speed
-    else:
-        if response['x'] > XPositionOnWorldMap:
-            print 'down'
-            updateMap(response['gameBoard'], Moves.down)
-            XPositionOnWorldMap = response['x']
-            ourX = ourX + 1
-        if response['x'] < XPositionOnWorldMap:
-            print 'up'
-            updateMap(response['gameBoard'], Moves.up)
-            XPositionOnWorldMap = response['x']
-            ourX = ourX - 1
-        if response['y'] > YPositionOnWorldMap:
-            print 'right'
-            updateMap(response['gameBoard'], Moves.right)
-            YPositionOnWorldMap = response['y']
-            ourY = ourY + 1
-        if response['y'] < YPositionOnWorldMap:
-            print 'left'
-            updateMap(response['gameBoard'], Moves.left)
-            YPositionOnWorldMap = response['y']
-            ourY = ourY - 1
 
-        direction = choose_direction(ourX, ourY)
-        speed = choose_speed(ourX, ourY)
-        return direction, speed
+    XPositionOnWorldMap = response['x']
+    YPositionOnWorldMap = response['y']
+    worldMap = response['gameBoard']
+    element = worldMap[2][2]
+
+    if element == 'B':
+        return (None, None, Actions.pick)
+    elif element == '1':
+        Priority_List[1]['Status'] = 'Taken'
+        return (None, None, Actions.turn_switch)
+    elif element == '2' and Priority_List[2]['Status'] == 'Taken':
+        Priority_List[2]['Status'] = 'Taken'
+        return (None, None, Actions.turn_switch)
+    elif element == '3' and Priority_List[3]['Status'] == 'Taken':
+        Priority_List[3]['Status'] = 'Taken'
+        return (None, None, Actions.turn_switch)
+
+    ### Other loot items maybe?
+
+    else:
+        if initialMapPassed is False:
+            updateMap(worldMap, -1)
+            initialMapPassed = True
+            direction = choose_direction(ourX, ourY)
+            speed = choose_speed(ourX, ourY)
+            return (direction, speed, None)
+        else:
+            if response['x'] > XPositionOnWorldMap:
+                print 'down'
+                updateMap(worldMap, Moves.down)
+                ourX = ourX + 1
+            if response['x'] < XPositionOnWorldMap:
+                print 'up'
+                updateMap(worldMap, Moves.up)
+                ourX = ourX - 1
+            if response['y'] > YPositionOnWorldMap:
+                print 'right'
+                updateMap(worldMap, Moves.right)
+                ourY = ourY + 1
+            if response['y'] < YPositionOnWorldMap:
+                print 'left'
+                updateMap(worldMap, Moves.left)
+                ourY = ourY - 1
+
+            direction = choose_direction(ourX, ourY)
+            speed = choose_speed(ourX, ourY)
+            return (direction, speed, None)
 
 def main():
     global bot_id
@@ -385,11 +400,11 @@ def main():
 
     while True:
         response = get_data()
-        move, speed = analyzeData(response)
-        send_data(move, speed)
-
+        move, speed, action = analyzeData(response)
+        send_data(move, speed, action)
+        #print move, speed, action
         print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in ourMap]))
-        print Priority_List
+        #print Priority_List
 
 
 
