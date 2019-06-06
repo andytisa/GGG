@@ -1,4 +1,56 @@
+########################################################################################################################
+#                                                   Imports                                                            #
+########################################################################################################################
+import json
 import socket
+
+########################################################################################################################
+#                                                   Variables                                                          #
+########################################################################################################################
+team_name = 'Navodari'
+
+host = 'localhost'
+port = 31415
+buf = 1024
+
+bot_id_request = {'get_team_id_for': team_name}
+client_socket = None
+
+
+########################################################################################################################
+#                                                   Procedures                                                         #
+########################################################################################################################
+def create_connection():
+    """
+    Creates a socket connection to the game server
+    """
+    global client_socket
+    connected = False
+
+    while not connected:
+        try:
+            client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            client_socket.connect((host, port))
+            connected = True
+        except:
+            pass
+
+
+def get_bot_id():
+    """
+    Register bot with a bot id
+    """
+    try:
+        data = '{:03x}'.format(len(json.dumps(bot_id_request))) + json.dumps(bot_id_request) + '\0'
+        print data
+        client_socket.send(data)
+        response = client_socket.recv(buf)
+        response = response[3:-1]
+        response = json.loads(response)
+        return response['bot_id']
+    except ex:
+        print ex
+
 
 class Node():
     """A node class for A* Pathfinding"""
@@ -13,6 +65,7 @@ class Node():
 
     def __eq__(self, other):
         return self.position == other.position
+
 
 def find_path(maze, start, end):
     """
@@ -89,7 +142,7 @@ def find_path(maze, start, end):
             # Create the f, g, and h values
             child.g = current_node.g + 1
             child.h = ((child.position[0] - end_node.position[0]) ** 2) + (
-                        (child.position[1] - end_node.position[1]) ** 2)
+                    (child.position[1] - end_node.position[1]) ** 2)
             child.f = child.g + child.h
 
             # Child is already in the open list
@@ -100,7 +153,10 @@ def find_path(maze, start, end):
             # Add the child to the open list
             open_list.append(child)
 
+
 def main():
+    create_connection()
+    bot_id = get_bot_id()
 
     maze = [[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
@@ -119,8 +175,11 @@ def main():
     path = find_path(maze, start, end)
     print(path)
 
+    while True:
+        response = client_socket.recv(buf)
+        response = response[3:-1]
+        response = json.loads(response)
+
+
 if __name__ == '__main__':
     main()
-
-
-
