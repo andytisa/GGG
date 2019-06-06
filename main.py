@@ -99,36 +99,36 @@ def updateMap(map, movement):
     if (movement == -1):
         for i in range(5):
             for j in range(5):
-                ourMap[midMap - 2 + j][midMap - 2 - i] = map[i][j]
+                ourMap[midMap - 2 + i][midMap - 2 + j] = map[i][j]
 
-    if (movement == 0):
+    if (movement == Moves.up):
+        ourX = ourX - 1
+        tempY = ourY - 2
+        for j in range(5):
+            ourMap[ourX - 2][tempY + j] = map[0][j]
+
+    if (movement == Moves.down):
+        ourX = ourX + 1
+        tempY = ourY - 2
+        for j in range(5):
+            ourMap[ourX + 2][tempY + j] = map[4][j]
+
+    if (movement == Moves.left):
         ourY = ourY - 1
         tempX = ourX - 2
         for i in range(5):
-            ourMap[tempX + i][ourY - 2] = map[0][i]
+            ourMap[tempX + i][ourY - 2] = map[i][0]
 
-    if (movement == 1):
+    if (movement == Moves.right):
         ourY = ourY + 1
         tempX = ourX - 2
         for i in range(5):
-            ourMap[tempX + i][ourY + 2] = map[4][i]
-
-    if (movement == 3):
-        ourX = ourX - 1
-        tempY = ourY + 2
-        for i in range(5):
-            ourMap[ourX - 2][tempY - i] = map[i][0]
-
-    if (movement == 4):
-        ourX = ourX + 1
-        tempY = ourY + 2
-        for i in range(5):
-            ourMap[ourX + 2][tempY - i] = map[i][4]
+            ourMap[tempX + i][ourY + 2] = map[i][4]
 
     currentMap = ""
     for i in range(20):
         for j in range(20):
-            currentMap += str(ourMap[40 + j][60 - i])
+            currentMap += str(ourMap[40 + i][40 + j])
             currentMap += " "
         currentMap += '\n'
     return currentMap
