@@ -16,14 +16,18 @@ client_socket = None
 bot_id = None
 
 ourMap = [['X' for i in range(100)] for j in range(100)]
+ourMapVisited = [[False for i in range(100)] for j in range(100)]
 midMap = 50
 ourX = 50
 ourY = 50
+ourMapVisited[ourX][ourY] = True
 initialMapPassed = False
 goingTop = True
 XPositionOnWorldMap = 0
 YPositionOnWorldMap = 0
 DoubleSpeed = False
+
+not_passable = 'pbRM'
 
 class Moves:
     up = 0
@@ -299,15 +303,24 @@ def find_path(maze, start, end):
 
 def choose_direction(x, y):
     if goingTop is True:
-        if ourMap[x - 1][y] == ' ':
+        if ourMap[x - 1][y] not in not_passable and not ourMapVisited[x - 1][y]:
             return Moves.up
-        if ourMap[x - 1][y] == 'b' or ourMap[x - 1][y] == 'p' or ourMap[x - 1][y] == 'R':
-            if ourMap[x][y + 1] == ' ':
+        else:
+            if ourMap[x][y + 1] not in not_passable and not ourMapVisited[x][y + 1]:
                 return Moves.right
-            elif ourMap[x][y - 1] == ' ':
+            elif ourMap[x][y - 1] not in not_passable and not ourMapVisited[x][y - 1]:
                 return Moves.left
-            elif ourMap[x + 1][y] == ' ':
+            elif ourMap[x + 1][y] not in not_passable and not ourMapVisited[x + 1][y]:
                 return Moves.down
+            elif ourMap[x][y + 1] not in not_passable:
+                return Moves.right
+            elif ourMap[x][y - 1] not in not_passable:
+                return Moves.left
+            elif ourMap[x + 1][y] not in not_passable:
+                return Moves.down
+            else:
+                return Moves.up
+                
     else:
         return Moves.down
 
@@ -326,6 +339,7 @@ def analyzeData(response):
     global YPositionOnWorldMap
     global ourX
     global ourY
+    global ourMapVisited
 
     worldMap = response['gameBoard']
     element = worldMap[2][2]
@@ -368,6 +382,8 @@ def analyzeData(response):
                 # print 'left'
                 updateMap(worldMap, Moves.left)
                 ourY = ourY - 1
+                
+            ourMapVisited[ourX][ourY] = True
 
             direction = choose_direction(ourX, ourY)
             speed = choose_speed(ourX, ourY)
